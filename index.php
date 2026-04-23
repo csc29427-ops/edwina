@@ -1,49 +1,46 @@
-<?php require "config.php"; ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Login Seguro</title>
+<?php
+$conn = new mysqli("localhost", "root", "123456", "test");
 
-<!-- Bootstrap para diseño -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $usuario = $_POST['usuario'];
+    $password = $_POST['password'];
 
-<style>
-/* Fondo con degradado */
-body {
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    height: 100vh;
+    // ❌ SQL Injection
+    $sql = "SELECT * FROM usuarios WHERE usuario = '$usuario' AND password = '$password'";
+    $resultado = $conn->query($sql);
+
+    if ($resultado->num_rows > 0) {
+        echo "Bienvenido " . $usuario;
+    } else {
+        echo "Usuario o contraseña incorrectos";
+    }
 }
-</style>
+?>
 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
 </head>
-<body class="d-flex justify-content-center align-items-center">
+<body>
 
-<!-- Tarjeta de login -->
-<div class="card p-4 shadow-lg" style="width: 350px;">
-    
-    <h3 class="text-center mb-3">🔐 Login</h3>
+<h2>Iniciar Sesión</h2>
 
-    <form method="POST" action="login.php">
-        
-        <!-- Token CSRF oculto -->
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+<form method="POST">
+    Usuario: <input type="text" name="usuario"><br><br>
+    Contraseña: <input type="password" name="password"><br><br>
+    <input type="submit" value="Ingresar">
+</form>
 
-        <!-- Campo usuario -->
-        <div class="mb-3">
-            <input type="text" name="usuario" class="form-control" placeholder="Usuario" required>
-        </div>
+<?php
+// ❌ XSS
+if (isset($_GET['mensaje'])) {
+    echo "<p>" . $_GET['mensaje'] . "</p>";
+}
 
-        <!-- Campo contraseña -->
-        <div class="mb-3">
-            <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
-        </div>
-
-        <!-- Botón -->
-        <button class="btn btn-primary w-100">Entrar</button>
-    </form>
-
-</div>
+// ❌ Credenciales expuestas
+$admin_password = "admin123";
+?>
 
 </body>
 </html>
